@@ -12,4 +12,4 @@ To get started, do
  
  ### Bugs
  
- After creating 3 songs, it seems to run out of memory, and freaks out so be cautious.
+ - After creating 3 songs, it seems to run out of memory, and freaks out so be cautious.
