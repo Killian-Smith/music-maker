@@ -8,4 +8,8 @@ To get started, do
  
  `yarn start`
  
- The app use Megenta to create music with AI.
+ The app uses Megenta to create music with AI.
+ 
+ ### Bugs
+ 
+ After creating 3 songs, it seems to run out of memory, and freaks out so be cautious.
