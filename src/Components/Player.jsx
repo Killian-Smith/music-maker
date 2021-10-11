@@ -63,8 +63,6 @@ class Player extends React.Component {
   };
 
   render() {
-    {
-      /*}
     if (!this.state.loaded)
       return (
         <div>
@@ -75,8 +73,6 @@ class Player extends React.Component {
           </p>
         </div>
       );
-    {*/
-    }
 
     return (
       <ThemeProvider theme={theme}>
