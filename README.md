@@ -10,6 +10,8 @@ To get started, do
  
  The app uses Megenta to create music with AI.
  
+ Showcase: https://youtu.be/4VxuaLW3Cdo
+ 
  ### Bugs
  
  - After creating 3 songs, it seems to run out of memory, and freaks out so be cautious.
