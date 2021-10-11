@@ -5,8 +5,6 @@ import "./styles.css";
 import { connect } from "react-redux";
 import { addSong } from "../Redux/Slices/songsSlice";
 
-import { BsPlusCircle } from "react-icons/bs";
-
 import * as mm from "@magenta/music";
 import Slider from "@mui/material/Slider";
 
@@ -25,7 +23,7 @@ class Player extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      bpm: 120,
+      temp: 1.5,
       loaded: false,
       playing: false,
     };
@@ -34,39 +32,39 @@ class Player extends React.Component {
   async componentDidMount() {
     this.player = new mm.Player();
 
-    this.musicVAE = new mm.MusicVAE(
+    this.musicDrums = new mm.MusicVAE(
       "https://storage.googleapis.com/magentadata/js/checkpoints/music_vae/drums_4bar_med_q2"
     );
 
-    await this.musicVAE.initialize();
+    this.musicMelody = new mm.MusicVAE(
+      "https://storage.googleapis.com/magentadata/js/checkpoints/music_vae/mel_16bar_small_q2"
+    );
+
+    await this.musicDrums.initialize();
+    await this.musicMelody.initialize();
 
     this.setState({ loaded: true });
   }
 
-  generateSong = () => {
-    if (this.player.isPlaying()) {
-      this.player.stop();
-    } else {
-      this.musicVAE
-        .sample(1, 1.5)
-        .then((samples) => this.props.addSong(samples[0]));
-    }
+  generateDrumsSong = () => {
+    this.musicDrums
+      .sample(1, this.state.temp)
+      .then((samples) => this.props.addSong(samples[0]));
   };
 
-  resume = () => {
-    if (this.player.isPlaying()) {
-      this.player.stop();
-    } else {
-      this.player.resumeContext();
-    }
+  generateMelodySong = () => {
+    this.musicMelody
+      .sample(1, this.state.temp)
+      .then((samples) => this.props.addSong(samples[0]));
   };
 
   handleChange = (event) => {
-    this.setState({ bpm: event.target.value });
-    this.player.setTempo(event.target.value);
+    this.setState({ temp: event.target.value });
   };
 
   render() {
+    {
+      /*}
     if (!this.state.loaded)
       return (
         <div>
@@ -77,6 +75,8 @@ class Player extends React.Component {
           </p>
         </div>
       );
+    {*/
+    }
 
     return (
       <ThemeProvider theme={theme}>
@@ -100,35 +100,33 @@ class Player extends React.Component {
             <div className="col-span-6 py-16">
               <div className="flex items-center h-full">
                 <div className="w-full">
-                  <div>
-                    <p className="font-medium text-lg">Drums</p>
+                  <div className="grid grid-cols-2 gap-4 pb-4">
+                    <button
+                      onClick={() => this.generateDrumsSong()}
+                      className="border-2 rounded-lg">
+                      <p className="font-medium text-lg text-center">Drums</p>
+                    </button>
+                    <button
+                      onClick={() => this.generateMelodySong()}
+                      className="border-2 rounded-lg">
+                      <p className="font-medium text-lg text-center">Melody</p>
+                    </button>
                   </div>
                   <div className="grid grid-cols-12 gap-1 items-center">
-                    <p className="col-span-2 font-medium text-lg">BPM:‎‏‎</p>
+                    <p className="col-span-5 font-medium text-lg">Randomness</p>
                     <Slider
-                      className="col-span-10"
+                      className="col-span-7"
                       size="small"
-                      value={this.state.bpm}
-                      max={240}
-                      min={40}
+                      value={this.state.temp}
+                      min={1.5}
+                      max={10}
                       onChange={this.handleChange}
                       aria-label="Small"
                       valueLabelDisplay="auto"
                     />
                   </div>
-                  <div className="grid grid-cols-6 items-center">
-                    <BsPlusCircle
-                      size={28}
-                      color="#232946"
-                      className="cursor-pointer"
-                      onClick={this.generateSong}
-                    />
-                    <div className="col-span-5">
-                      <Songs />
-                    </div>
-                  </div>
+                  <Songs />
                 </div>
-                <div></div>
               </div>
             </div>
           </div>
