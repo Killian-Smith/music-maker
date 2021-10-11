@@ -2,11 +2,24 @@ import * as React from "react";
 
 import "./styles.css";
 
+import { connect } from "react-redux";
+import { addSong } from "../Redux/Slices/songsSlice";
+
+import { BsPlusCircle } from "react-icons/bs";
+
 import * as mm from "@magenta/music";
 import Slider from "@mui/material/Slider";
 
-import Dropdown from "react-dropdown";
-const musicInstuments = ["Drums", "Melody", "Trio", "Multitrack"];
+import { ThemeProvider, createTheme } from "@mui/material";
+import Songs from "./Songs";
+
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: "#0052fe",
+    },
+  },
+});
 
 class Player extends React.Component {
   constructor(props) {
@@ -14,6 +27,7 @@ class Player extends React.Component {
     this.state = {
       bpm: 120,
       loaded: false,
+      playing: false,
     };
   }
 
@@ -26,18 +40,24 @@ class Player extends React.Component {
 
     await this.musicVAE.initialize();
 
-    console.log("IT WORKED, SO I AM A GOOD PROGRAMMER");
-
     this.setState({ loaded: true });
   }
 
-  playSongWithAI = () => {
+  generateSong = () => {
     if (this.player.isPlaying()) {
       this.player.stop();
     } else {
       this.musicVAE
         .sample(1, 1.5)
-        .then((samples) => this.player.start(samples[0]));
+        .then((samples) => this.props.addSong(samples[0]));
+    }
+  };
+
+  resume = () => {
+    if (this.player.isPlaying()) {
+      this.player.stop();
+    } else {
+      this.player.resumeContext();
     }
   };
 
@@ -59,40 +79,65 @@ class Player extends React.Component {
       );
 
     return (
-      <div
-        className="bg-white shadow-sm h-52 rounded-2xl p-6 mt-48 flex items-center"
-        style={{ width: "730px" }}>
-        <div className="grid grid-cols-12 gap-2">
-          <div className="col-span-6">
-            <img
-              src="https://raw.githubusercontent.com/magenta/listen-to-transformer/master/assets/icon-512.png"
-              alt="Music"
-              style={{
-                borderRadius: "50%",
-                height: "300px",
-                width: "300px",
-                animation: "spin 6s linear infinite",
-                border: "10px solid white",
-              }}
-            />
-          </div>
-          <div className="col-span-6 py-16">
-            <p className="font-medium text-xl">Drums</p>
-            <Slider
-              size="small"
-              value={this.state.bpm}
-              max={240}
-              min={40}
-              onChange={this.handleChange}
-              aria-label="Small"
-              valueLabelDisplay="auto"
-            />
-            <button onClick={() => this.playSongWithAI()}>TEST</button>
+      <ThemeProvider theme={theme}>
+        <div
+          className="bg-white shadow-sm h-52 rounded-2xl p-6 mt-48 flex items-center"
+          style={{ width: "665px" }}>
+          <div className="grid grid-cols-12 gap-2">
+            <div className="col-span-6">
+              <img
+                src="https://raw.githubusercontent.com/magenta/listen-to-transformer/master/assets/icon-512.png"
+                alt="Music"
+                style={{
+                  borderRadius: "50%",
+                  height: "300px",
+                  width: "300px",
+                  animation: "spin 6s linear infinite",
+                  border: "10px solid white",
+                }}
+              />
+            </div>
+            <div className="col-span-6 py-16">
+              <div className="flex items-center h-full">
+                <div className="w-full">
+                  <div>
+                    <p className="font-medium text-lg">Drums</p>
+                  </div>
+                  <div className="grid grid-cols-12 gap-1 items-center">
+                    <p className="col-span-2 font-medium text-lg">BPM:‎‏‎</p>
+                    <Slider
+                      className="col-span-10"
+                      size="small"
+                      value={this.state.bpm}
+                      max={240}
+                      min={40}
+                      onChange={this.handleChange}
+                      aria-label="Small"
+                      valueLabelDisplay="auto"
+                    />
+                  </div>
+                  <div className="grid grid-cols-6 items-center">
+                    <BsPlusCircle
+                      size={28}
+                      color="#232946"
+                      className="cursor-pointer"
+                      onClick={this.generateSong}
+                    />
+                    <div className="col-span-5">
+                      <Songs />
+                    </div>
+                  </div>
+                </div>
+                <div></div>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
+      </ThemeProvider>
     );
   }
 }
 
-export default Player;
+const mapDispatchToProps = { addSong };
+
+export default connect(null, mapDispatchToProps)(Player);
